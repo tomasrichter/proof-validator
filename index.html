@@ -1,0 +1,411 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+	    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+	    <title>Proof Validator</title>
+        <link rel="stylesheet" type="text/css" href="Styles/Base.css?$$REVISION$$">
+	    <!--about languages script-->
+	    <script src="Scripts/Languages/LanguageName.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Languages/Operation.js?$$REVISION$$" type="text/javascript" ></script>
+	    <!--proving scripts-->
+	    <script src="Scripts/Proving/Proof.js?$$REVISION$$" type="text/javascript" ></script>
+        <script src="Scripts/Proving/Rules.js?$$REVISION$$" type="text/javascript" ></script>
+        <script src="Scripts/Proving/SideOfTask.js?$$REVISION$$" type="text/javascript"></script>
+	    <script src="Scripts/Proving/Task.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Proving/Solution.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Proving/Step.js?$$REVISION$$" type="text/javascript" ></script>
+	    <!--utility scripts-->
+	    <script src="Scripts/Utils/Utils.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Utils/Help.js?$$REVISION$$" type="text/javascript" ></script>
+	    <!--items scripts-->
+	    <script src="Scripts/Items/ProvingItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Items/TaskItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Items/StatementItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Items/ContradictionItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Items/LanguageItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Items/ClosureItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Items/ConcreteItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <!--editor scripts-->
+	    <script src="Scripts/Editor/EditorItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Editor/EditLanguageItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <script src="Scripts/Editor/EditOperationItem.js?$$REVISION$$" type="text/javascript" ></script>
+	    <!--main script-->
+        <script src="Scripts/App.js?$$REVISION$$" type="text/javascript" ></script>
+	    <noscript>
+		    <link rel="stylesheet" type="text/css" href="css/NoJs.css?$$REVISION$$">
+	    </noscript>
+    </head>
+    <body onload="init()">
+	    <div id="divNoJs">JavaScript is disabled. Please check your browser settings...</div>
+    <div id="divContainer">
+        <div id="divHeader">
+            <table>
+                <tr>
+                    <td class="fixed">
+                        <img class="flag cs" src="Images/en.svg" onmousedown="setLanguage('en')" alt="EN">
+                        <img class="flag en" src="Images/cs.svg" onmousedown="setLanguage('cs')" alt="CS">
+                        <span class="bold cs" onmousedown="setLanguage('en')">Switch to english</span>
+                        <span class="bold en" onmousedown="setLanguage('cs')">Přepnout do češtiny</span>
+                        <br>
+                        <input type="radio" name="method" id="direct" value="direct" checked="checked" onmousedown="setMethod(EnumMethod.DIRECT)">
+                        <span class="bold en" onmousedown="setMethod(EnumMethod.DIRECT)">Direct proof</span>
+                        <span class="bold cs" onmousedown="setMethod(EnumMethod.DIRECT)">Důkaz přímým odvozením</span>
+                        <br>
+                        <input type="radio" name="method" id="contra" value="contra" onmousedown="setMethod(EnumMethod.CONTRA)">
+                        <span class="bold en" onmousedown="setMethod(EnumMethod.CONTRA)">Proof by contradiction</span>
+                        <span class="bold cs" onmousedown="setMethod(EnumMethod.CONTRA)">Důkaz sporem</span>
+                        <br>
+                        <input type="radio" name="method" id="disproof" value="disproof" onmousedown="setMethod(EnumMethod.DISPROOF)">
+                        <span class="bold en" onmousedown="setMethod(EnumMethod.DISPROOF)">Disproof by counterexample</span>
+                        <span class="bold cs" onmousedown="setMethod(EnumMethod.DISPROOF)">Vyvrácení protipříkladem</span>
+                        <br>
+                        <div id="examples"></div>
+                        <table>
+                            <tr>
+                                <td>
+                                    <button class="menuButton language" onmousedown="addProvingItem(EnumItem.LANGUAGE)">
+                                        <span class="en">Language statement</span>
+                                        <span class="cs">Obecné tvrzení</span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="menuButton closure" onmousedown="addProvingItem(EnumItem.CLOSURE)">
+                                        <span class="en">Closure property</span>
+                                        <span class="cs">Uzávěrová vlastnost</span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="menuButton" onmousedown="proof.clearSpace()">
+                                        <span class="en">Clear workspace</span>
+                                        <span class="cs">Vymazat plochu</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="menuButton" onmousedown="addProvingItem(EnumItem.CONCRETE)">
+                                        <span class="en">Concrete statement</span>
+                                        <span class="cs">Konkrétní tvrzení</span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="menuButton" onmousedown="addProvingItem(EnumItem.CONTRA)">
+                                        <span class="en">Contradiction</span>
+                                        <span class="cs">Spor</span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="menuButton" onmousedown="openHelp()">
+                                        <span class="en">Help</span>
+                                        <span class="cs">Nápověda</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>	
+                    <td>	
+                        <table>
+                            <tr>
+                                <td>	
+                                    <div id="divTask">
+                                        <div id="divQuantifier" class="divLogicalSymbol">∀</div>
+                                        <div id="divImplication" class="divLogicalSymbol" onmousedown="task.change()">&#8658;</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="divCheck"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="divNote">
+                                        <span id="noteEN" class="en"></span>
+                                        <span id="noteCS" class="cs"></span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="divSpace">
+            <svg id="svgItem"></svg>
+        </div>	
+    </div>
+    <div id="divHelp" onload="createHelp()">
+        <button class="buttonClose" onmousedown="closeHelp()"></button>
+        <div id ="divHelpContent">
+        <h1 class="cs">Nápověda</h1>
+        <h1 class="en">Help</h1>
+        <ul>
+        <li>
+            <button id="buttonViewHideIntro" onmousedown="switchPart('Intro')"></button>
+            <h2 onmousedown="switchPart('Intro')">
+                <span class="cs">Práce s aplikací</span>
+                <span class="en">Application</span>
+            </h2>
+            <ul id="partIntro">
+                <li>
+                    <h3 class="cs">Orientace v programu</h3>
+                    <h3 class="en">Orientation in the program</h3>
+                    <p class="cs">Záhlaví slouží ke zvolení typu důkazu, vkládání tvrzení na dokazovací prostor a k zadávání příkladů. V dokazovacím prostoru můžete s tvrzeními volně manipulovat a spojovat s dalšími tvrzeními a tvořit tak důkaz.</p>
+                    <p class="en">In the header, you can choose method of proof, add statements to workspace and create the task you want to prove. In the workspace, you can move with statements and join them together to create a proof.</p>
+                </li>
+                <li>
+                    <h3 class="cs">Atomické tvrzení</h3>
+                    <h3 class="en">Atomic statement</h3>
+                    <p class="cs">Program rozlišuje 4 typy atomických tvrzení, ze kterých lze důkaz sestavit:</p>
+                    <p class="en">In the application, 4 types of atomic statement can be used in proof:</p>
+                    <div class="item unknown language">
+                        <b class="cs">Obecné tvrzení</b>
+                        <b class="en">Language statement</b>
+                    </div>
+                    <p class="cs">Obecné tvrzení představuje tvrzení o příslušnosti jazyka do určité jazykové třídy. Tato tvrzení lze znegovat kliknutím na symboly &#8712; a &#8713;.</p>
+                    <p class="en">Language statement represents that language is member of specific language class. This statements can be negated using &#8712; and &#8713; symbols.</p>
+                    <div class="item unknown closure">
+                        <b class="cs">Uzávěrová vlastnost</b>
+                        <b class="en">Closure property</b>
+                    </div>
+                    <p class="cs">Toto tvrzení znázorňuje uzávěrovou vlastnost jazykové třídy na určitou operaci.</p>
+                    <p class="en">This statement represents closure property of specific language class under specific operation.</p>
+                    <div class="item unknown language">
+                        <b class="cs">Konkrétní tvrzení</b>
+                        <b class="en">Concrete statement</b>
+                    </div>
+                    <p class="cs">Konkrétní tvrzení představuje tvrzení, že nějaký jazyk je roven konkrétnímu jazyku z databáze.</p>
+                    <p class="en">Concrete statement represents that some language is equal to concrete language from database.</p>
+                    <div class="item unknown contra">
+                        <b class="cs">Spor</b>
+                        <b class="en">Contra-diction</b>
+                    </div>
+                    <p class="cs">Toto tvrzení slouží k odvození sporu z nějakých dvou obecných tvrzení.</p>
+                    <p class="en">This statement is used for deducing contradiction from two language statements.</p>
+                    <p class="cs">Pomocí barev se rozlišuje mezi 3 stavy každého tvrzení:</p>
+                    <p class="en">Colors determine 3 states of each statement:</p>
+                    <ul>
+                        <li>
+                            <p class="cs"><b>Bílá (neznámé): </b>o tvrzení není známo, zda je pravdivé či nepravdivé.
+                            </p>
+                            <p class="en"><b>White (unknown)): </b>it is not known if the statement is true or false.
+                            </p>
+                        </li>
+                        <li>
+                            <p class="cs"><b>Zelená (správně): </b>tvrzení je předpokládáno ze zadání nebo bylo korektně odvozeno.
+                            </p>
+                            <p class="en"><b>Green (correct): </b>statement can be assumed or it was correctly deduced before.
+                            </p>
+                        </li>
+                        <li>
+                            <p class="cs"><b>Červená (nesprávně): </b>tvrzení není nebo nemůže být korektně odvozeno.
+                            </p>
+                            <p class="en"><b>Red (wrong): </b>statement cannot be deduced.
+                            </p>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 class="cs">Editor jazyků</h3>
+                    <h3 class="en">Editor of languages</h3>
+                    <p class="cs">Pokud tvrzení obsahuje název jazyka, lze jej po kliknutí upravit v editoru jazyků.</p>
+                    <p class="en">After click, language name in statement can be edited in the editor of languages.</p>
+                    <p><input type="text" class="inputEditor">
+                        <span class="cs">Do textového pole se vpisují názvy atomických jazyků.</span>
+                        <span class="en">Type atomic names in the input field.</span>
+                    </p>
+                    <p><button class="buttonAdd"></button> <button class="buttonDelete"></button>
+                        <span class="cs">Pomocí tlačítek se provádí přidání a odebrání operace.</span>
+                        <span class="en">Buttons for adding and deleting operations.</span>
+                    </p>
+                </li>
+                <li>
+                    <h3 class="cs">Zadání tvrzení</h3>
+                    <h3 class="en">Creating task</h3>
+                    <div class="divLogicalSymbol">∀</div>
+                    <p class="cs">Zadávané tvrzení je uvozeno všeobecným kvantifikátorem, což znamená, že pravdivé tvrzení musí platit pro libovolné jazyky.</p>
+                    <p class="en">Task is prefixed with universal quantifier. That means that true statement must be true for all languages.</p>
+                    <div class="divLogicalSymbol">&#8658; </div>
+                    <div class="divLogicalSymbol">&#8656; </div>
+                    <p class="cs">Symbol implikace slouží k úpravě tvrzení (A &#8658; B) na ekvivalentní (&#172B; &#8658; &#172A;) a naopak.</p>
+                    <p class="en">Implication symbol is used for changing statement (A &#8658; B) to equivallent (&#172B; &#8658; &#172A;).</p>
+                    <p><button class="buttonAdd"></button> <button class="buttonDelete"></button>
+                        <span class="cs">Pomocí tlačítek lze přidávat a odebírat tvrzení ze stran implikace.</span>
+                        <span class="en">Buttons for adding and deleting statements in task.</span>
+                    </p>
+                    <p><button class="mover"></button>
+                        <span class="cs">Tlačítkem v levém horním rohu se tvrzení vloží do dokazovacího prostoru.</span>
+                        <span class="en">This button adds statement to the workspace.</span>
+                    </p>
+                    <div class="divLogicalSymbol">&#8743; </div>
+                    <div class="divLogicalSymbol">&#8744; </div>
+                    <p class="cs">Symbol logické spojky (konjuknce, disjunkce) slouží ke změně všech logických spojek na dané straně implikace.</p>
+                    <p class="en">Symbol of logical connective (conjunction, disjunction) changes all logical connectives on the side of implication.</p>
+                </li>
+                <li>
+                    <h3 class="cs">Důkaz</h3>
+                    <h3 class="en">Proof</h3>
+                    <ul>
+                        <li>
+                            <h4 class="cs">Tvoření důkazu</h4>
+                            <h4 class="en">Creating proof</h4>
+                            <p><button class="mover"></button>
+                                <span class="cs">Pomocí tohoto tlačítka lze s tvrzeními pohybovat v dokazovacím prostoru.</span>
+                                <span class="en">On the workspace, you can move with the statement using this button.</span>
+                            </p>
+                            <p><button class="buttonAdd"></button> <button class="buttonDelete"></button>
+                                <span class="cs">Tato tlačítka slouží k vytvoření kopie tvrzení nebo naopak k jeho odstranění.</span>
+                                <span class="en">Button for creating copy and deleting of the statement.</span>
+                            </p>
+                            <p class="cs">Důkaz se sestavuje v dokazovacím prostoru tak, že se jednotlivá atomická tvrzení spojují vazbami.</p>
+                            <p class="en">Proof is created in the workspace using connecting atomic statements with links.</p>
+                            <p><button class="connection"></button>
+                                <span class="cs">Výběr spojovaných tvrzení se provádí pomocí tlačítek nad a pod tvrzením.</span>
+                                <span class="en">Statements that will be joined are selected with buttons above and under the statements.</span>
+                            </p>
+                            <p class="cs">K vytvoření nebo zrušení vazby mezi tvrzeními musí být vybrán právě jeden horní a právě jeden spodní spojovač.</p>
+                            <p class="en">To create or delete a link, it is necessary to select exactly one top and one bottom joining button.</p>
+                            <p><button class="connection selected"></button>
+                                <span class="cs">Vybraný spojovač je zvýrazněn modrou barvou.</span>
+                                <span class="en">Selected joining button is highlighted with blue color.</span>
+                            </p>
+                            <p class="cs">Důkaz čteme shora dolů, vazba tedy jednoznačně určuje dedukční krok. Tvrzení s využitým spodním spojovačem je proto předpokladem a tvrzení s využitým horním spojovačem je závěrem dedukčního kroku.</p>
+                            <p class="en">We read proof from top to bottom, so a link represents deduction step. Therefore, statement with used bottom joining button represents the premise and statement with used bottom joining button represents conclusion of deduction step.</p>
+                            <p class="cs">K informování o průběhu a správnosti důkazu slouží textový popis v záhlaví.</p>
+                            <p class="en">Text in the header informs you about progress in proving.</p>
+                        </li>
+                        <li>
+                            <h4 class="cs">Přímý důkaz</h4>
+                            <h4 class="en">Direct proof</h4>
+                            <p class="cs">Předpokládejme platnost předpokladů zadané implikace (tvrzení jsou obarvena zeleně). Abychom dokázali platnost celé implikace, musíme buď ukázat, že předpokládaná tvrzení jsou ve sporu a předpoklad implikace tudíž nemůže platit. Nebo musíme z předpokládaných tvrzení odvodit závěr implikace.</p>
+                            <p class="en">Assume the premise of implication is true. To prove that whole implication is true, we have to show that premises are in contradiction or have to deduce conclusion of implication using assumed statements.</p>
+                        </li>
+                        <li>
+                            <h4 class="cs">Důkaz sporem</h4>
+                            <h4 class="en">Proof by contradiction</h4>
+                            <p class="cs">Důkaz sporem spočívá v předpokládání platnosti předpokladů implikace a neplatnosti závěru implikace. Pokud z tohoto odvodíme spor, musely být v rozporu už samotné předpoklady (a implikace platí) nebo je spor způsoben mylným předpokladem neplatnosti závěru. V druhém případě nutně musel být původní závěr pravdivý a tedy pravdivá celá implikace.</p>
+                            <p class="en">When proving by contradiction, we assume that the premise of implication is true and the conclusion is false. If we deduce contradiction from assumed statements, conclusion of implication has to be true and therefore whole implication is true.</p>
+                        </li>
+                        <li>
+                            <h4 class="cs">Vyvracení protipříkladem</h4>
+                            <h4 class="en">Disproof by counterexample</h4>
+                            <p class="cs">Pokud vyvracíme obecné tvrzení, vlastně dokazujeme negaci tohoto tvrzení, které je kvantifikováno existenčím kvantifikátorem. Proto nám stačí ukázat, že původní tvrzení pro nějaký konkrétní protipříklad neplatí. Nic tedy nepředpokládáme, pouze se snažíme z konkrétních tvrzení odvodit platnost předpokladů a neplatnost závěru implikace.</p>
+                            <p class="en">Disproving of universal statement is equivallent to proving negation of the statement quantified with existential quantifier. So, to disprove the statement we have to show that statement is false for some counterexample. We don't assume anything, from concrete statements we only try to deduce that premise of the implication is true and the conclusion is false.</p>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+            <li>
+                <button id="buttonViewHideTheory" onmousedown="switchPart('Theory')"></button>
+                <h2 onmousedown="switchPart('Theory')">
+                    <span class="cs">Chomského hierarchie a jazykové třídy</span>
+                    <span class="en">Chomsky hierarchy and language classes</span>
+                </h2>
+                <ul id="partTheory">
+                    <li>
+                        <h3 class="cs">Chomského hierarchie jazyků</h3>
+                        <h3 class="en">Chomsky hierarchy of languages</h3>
+                        <p class="cs">Při dokazování lze využít znalosti Chomského hierarchie gramatik a příslušných jazykových tříd. Na následujícím obrázku je tato hierarchie znázorněna, ze kterého je patrná vlastní inkluze mezi třídami. Například, že všechny konečné jazyky jsou regulární, ale ne všechny regulární jazyky jsou konečné.</p>
+                        <p class="en">In proof, you can use facts concerning Chomsky hierarchy of grammars and language classes. In the picture of Chomsky hierarchy, you can see that language classes are in inclusion. For example, every finite language is regular, but not every regular languge is finite.</p>
+                        <div id="divChomsky" class="set"></div>
+                    </li>
+                    <li>
+                        <h3 class="cs">Uzávěrové vlastnosti jazykových tříd</h3>
+                        <h3 class="en">Closure properties of language classes</h3>
+                        <p class="cs">Jazyková třída je uzavřena na operaci, pokud jazyk vzniklý aplikací dané operace nad libovolnými jazyky z této třídy stále náleží do této třídy. Následující tabulka znázorňuje známé uzávěrové vlastnosti.</p>
+                        <p class="en">Language class is closed under a operation if language created by application of the operation on every language from the language class is still member of the language class. Table shows known closure properties.</p>
+                        <table id="tableClosures"></table>
+                    </li>
+                    <li>
+                        <h3 class="cs">Protipříklady</h3>
+                        <h3 class="en">Counterexamples</h3>
+                        <p class="cs">Protipříklady jsou konkrétní formální jazyky, které slouží k vyvracení obecného tvrzení. Protipříklady mohou být zařazeny do Chomského hierarchie, viz následující obrázek.</p>
+                        <p class="en">Counterexamples are concrete formal languages that are used for disproving universal statement. Counterexamples can be located in Chomsky hierarchy as shown in next picture.</p>
+                        <div id="divExamples" class="set"></div>
+                        <p class="cs">Výsledkem operace nad konkrétními jazyky je vždy konkrétní jazyk. V důkazech se například často používá prázdná množina (∅), díky zjednodušení výsledku operace.</p>
+                        <p class="en">Result of operation on concrete languages is always a concrete language. In proofs, empty set (∅) is often used because of simplified result of operation.</p>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <button id="buttonViewHideRules" onmousedown="switchPart('Rules')"></button>
+                <h2 onmousedown="switchPart('Rules')">
+                    <span class="cs">Dedukční kroky</span>
+                    <span class="en">Deduction steps</span>
+                </h2>
+                <ul id="partRules">
+                    <li>
+                        <h3 class="cs">Inkluze v Chomského hierarchii</h3>
+                        <h3 class="en">Subset step in Chomsky hierarchy</h3>
+                        <p class ="cs">Tento typ dedukčního kroku musí obsahovat právě jeden předpoklad a závěr. Krok slouží k odvozování na základě vlastností Chomského hierarchie gramatik a jazykových tříd. Validními kroky jsou například:</p>
+                        <p class="en">Subset step contains exactly one premise and a conclusion. Step is based on properties of Chomsky hierarchy of grammars and language classes. For example, valid steps are: </p>
+                        <ul>
+                            <li>A &#8712; FIN &#8658; A &#8712; REG</li>
+                            <li>A &#8713; RE &#8658; A &#8713; CFL</li>
+                        </ul>
+                        <p class="cs">Za tento typ kroku lze považovat i odvození obecného tvrzení z tvrzení o konkrétním jazyku, například:</p>
+                        <p class="en">Same step is used for deducing concrete statement from language statement, such as:</p>
+                        <ul>
+                            <li>A = ∅ &#8658; A &#8712; CFL</li>
+                            <li>A = ∑* &#8658; A &#8713; FIN, (∑ &#8800; ∅)</li>
+                        </ul>
+                        <h3 class="cs">Rovnost množin</h3>
+                        <h3 class="en">Set equality</h3>
+                        <p class ="cs">Dedukční krok musí obsahovat právě jeden předpoklad a závěr. Krok pracuje pouze s názvem jazyka, který porovnává v předpokladu a v závěru. Případy, kdy se jazyky rovnají, jsou reprezentovány v programu jako sada následujících pravidel, která platí pro libovolný jazyk ___.</p>
+                        <p class ="en">Set equality step contains exactly one premise and a conclusion. Step works only with the name of language which is compared in the premise and in the conclusion. Cases when languages are equal are represented as a set of rules in the table. Rules can be applied to every language ___.</p>
+                        <table id="tableSetEqualityRules"></table>
+                        <h3 class="cs">Aplikování operace</h3>
+                        <h3 class="en">Operation step</h3>
+                        <p class ="cs">Nejdůležitějším krokem v důkazu bývá vytvoření jazyka aplikováním operace na dílčí jazyky. V některých z těchto kroků je nutné využít známých uzávěrových vlastností, například:</p>
+                        <p class ="en">The most important step in proof can be application of an operation on languages. In some of these steps, it is necessary to use known closure properties:</p>
+                        <ul>
+                            <li>A &#8712; REG, B &#8712; REG, REG
+                                <span class="cs"> jsou uzavřeny na sjednocení </span>
+                                <span class="en"> are closed under union </span>
+                                &#8658; A &#8746; B &#8712; REG
+                            </li>
+                            <li>A &#8713; DCFL, DCFL
+                                <span class="cs"> jsou uzavřeny na doplněk </span>
+                                <span class="en"> are closed under complement </span>
+                                &#8658; co-A &#8713; DCFL
+                            </li>
+                        </ul>
+                        <p class="cs">V některých případech lze tento krok nad obecnými tvrzeními sestavit bez uzávěrové vlastnosti. Za ___ lze dosadit jazyk z libovolné třídy (avšak v rámci jednoho pravidla vždy ze stejné třídy).</p>
+                        <p class="en">In some cases, it is possible to create the step without closure property. Symbol ___ can be replaced with every language class (but replaced classes have to be same in a rule).</p>
+                        <table id="tableLanguageRules"></table>
+                        <p class="cs">Podporované dedukční kroky s konkrétními jazyky jsou znázorněny v následující tabulce. Symbol ___ zde má obdobný význam.</p>
+                        <p class="en">Supported operation steps with concrete languages are listed in the table. Symbol ___ has similar meaning here.</p>
+                        <table id="tableConcreteRules"></table>
+                        <p class="cs">V případech, ve kterých je některý z operandů libovolný a nezávisí na něm výsledek operace, není nutné předpoklad uvádět, například lze vytvořit kroky:</p>
+                        <p class="en">In some cases when some operand is not rellevant (result of operation does not depend on it), it is not necessary to used this premise in the step. For example, valid steps are:</p>
+                        <ul>
+                            <li>A &#8712; FIN &#8658; A &#8745; B &#8712; FIN</li>
+                            <li>A = ∅ &#8658; A &#8745; B = ∅</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <button id="buttonViewHideAbout" onmousedown="switchPart('About')"></button>
+                <h2 onmousedown="switchPart('About')">
+                    <span class="cs">O programu</span>
+                    <span class="en">About</span>
+                </h2>
+                <ul id="partAbout">
+                    <li>
+                        <span class="cs">Autor: </span>
+                        <span class="en">Author: </span>
+                        Tomáš Richter
+                        <p class="cs">Program vznikl roku 2017 jako bakalářská práce na Fakultě informatiky Masarykovy univerzity v Brně.</p>
+                        <p class="en">Application was created in 2017 as a bachelor thesis on the Faculty of Informatics, Masaryk University, Brno.</p>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    </div>
+    </body>
+</html>
+

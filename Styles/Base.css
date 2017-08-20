@@ -1,0 +1,470 @@
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+	height: 200%;
+	margin: 0;
+	cursor: default;
+}
+
+table {
+	color: #001247;
+}
+
+.connection.selected {
+	background-color: #001247;
+}
+
+.divLogicalSymbol {
+	line-height: 28px;
+}
+
+.mover, .proving, .connection, .divEditor, .divScrollable, .buttonAdd.operation, .deleteAll, .itemButton,
+#divHelp {
+	position: absolute;
+}
+
+.task, .divLanguage,
+#divSpace, #arrow {
+	position: relative;
+}
+ 
+.mover, .item, .connection, .divLight, .set, .divLanguage, .divEditor, .inputEditor, .connection, .menuButton, .unknown, .divLogicalSymbol, .divOperation, .buttonClose,
+#divTask, #divHelp, #tableClosures td {
+	border: 2px solid #AAAAAA;
+}
+
+.connection, .buttonClose, .buttonAdd, .buttonDelete, .divLogicalSymbol, .divOperation, .mover {
+    border-radius: 4px;
+}
+
+.language {
+    border-radius: 16px;
+}
+
+.closure, .divLight, .set {
+    border-radius: 50%;
+}
+
+.item, .menuButton {
+	white-space: normal;
+}
+
+.divScrollable, #divTask {
+	white-space: nowrap;
+}
+
+.item, .content, .controller, .divLogicalSymbol, .set, 
+#tableClosures td {
+	text-align: center;
+}
+
+body, 
+.menuButton, .divEditor,
+#divTask {
+	background-color: #EEEEEE;
+}
+
+.deleteAll {
+	right: 0;
+	top: 0;
+	width: 40px;
+	height: 40px;
+}
+
+.connection {
+    left: 50%;
+    margin-left: -12px;
+	width: 24px;
+	height: 12px;
+}
+
+.connection.bottom {
+    margin-top: 4px;
+    top: 100%;
+}
+
+.connection.top {
+    margin-bottom: 4px;
+    bottom: 100%;
+}
+
+.buttonClose, .inputEditor {
+	background-color: black;
+	color: #FFFFFF;
+}
+
+.item {
+	padding: 0;
+	padding-top : 4px;
+	width: 192px;
+	height: 64px;
+}
+
+.menuButton {
+	width: 104px;
+	height: 48px;
+	margin-top: 2px;
+}
+
+.contra {
+	width: 56px;
+    height: 56px;
+}
+
+.contra .controller{
+    margin-top: 4px;
+}
+
+.buttonClose:before {
+	content:"x";
+}
+
+.content {
+	width: 100%;
+}
+
+.controller {
+    padding : 0;
+	margin: 0;
+    background-color : #000000;
+    background-color : rgba(0,0,0,0);
+    border: 0;
+	width: 100%;
+	overflow: hidden;
+}
+
+select.smaller {
+	width: 70%;
+}
+
+.divLanguage {
+	padding: 2px;
+	margin: 2px;
+	margin-left: 8px;
+}
+
+.divEditor {
+    width: 512px;
+    height: 160px;
+}
+
+.divEditor, #divHelp{
+	padding: 4px;
+}
+
+.divScrollable {
+    padding-top:8px;
+    bottom: 0;
+    width: 512px;
+    height: 128px;
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+
+.inputEditor {
+    width: 32px;
+    margin-left:8px;
+    margin-right:2px;
+	padding-left: 4px;
+}  
+
+.buttonAdd, .buttonDelete, .buttonClose, .mover {
+    width: 16px;
+    height: 16px;
+	line-height: 0;
+	padding: 0;
+}
+
+.mover {
+    width: 24px;
+    height: 24px;
+    cursor: move;
+    left: -12px;
+    top: -12px;
+}
+
+.buttonAdd:before, .mover:before {
+	content:"+";
+}
+
+.buttonDelete:before {
+	content:"-";
+}
+
+.correct, .buttonAdd {
+	border: 2px solid darkGreen;
+	background-color: #aaff66;
+}
+
+.wrong, .buttonDelete {
+	border: 2px solid darkRed;
+	background-color: #ff9999;
+}
+
+.unknown {
+	background-color: #FFFFFF;
+}
+
+.buttonAdd.operation {
+	left: -8px;
+	top: -8px;
+}
+
+.divLogicalSymbol, .divOperation {
+    width: 48px ;
+    height: 32px;
+	margin: 2px;
+} 
+
+input:hover,
+.divLogicalSymbol:hover, .divOperation:hover, .mover:hover, .menuButton:hover, .buttonAdd:hover, .buttonDelete:hover, .buttonClose:hover, .flag:hover {
+    -webkit-transform:scale(1.05,1.05);
+    -moz-transform:scale(1.05,1.05);
+    transform:scale(1.05,1.05);
+}
+
+.bold:hover, .controller:hover {
+	font-weight: bold;
+}
+
+.divLogicalSymbol {
+	font-size: 28px;
+}
+
+.divLight {
+	margin: 2px 4px;
+	width: 16px;
+	height: 16px;
+}
+
+#divQuantifier {
+	width: 24px;
+}
+
+#divContainer {
+	display: table;
+	width:100%;
+	height:100%;
+}
+
+.divLogicalSymbol, .divOperation, .connection, .mover, 
+table, #divHelp {
+	background-color: #FFFFFF;
+	color: #001247;
+}
+
+#divHeader {
+	display: table;
+	width: 100%;
+	padding: 0;
+    border-bottom: 4px solid #AAAAAA;
+}
+
+#divTask {
+	height: 64px;
+    padding: 16px;
+}
+
+#arrow {
+	top: -28px;
+}
+
+#divImplication {
+	margin-left: 6px;
+}
+
+#divNote {
+	margin: 8px;
+}
+
+.flag {
+    width: 24px;
+    height: 16px;
+}
+
+#divHelpContent {
+    padding-right: 64px;
+    margin-left: 32px;
+    overflow: auto;
+    height: 100%;
+}
+
+#divHelp {
+	visibility: hidden;
+	left: 8%;
+	top: 8%;
+	right: 8%;
+	bottom: 8%;
+}
+
+#divSpace {
+    height: 100%;
+}
+
+td {
+	vertical-align: top;
+	padding: 2px;
+}
+
+table {
+	width: 100%;
+	padding: 0;
+}
+
+td.fixed {
+	width: 8px;
+	padding: 4px;
+}
+
+.task, .divLanguage, .inputEditor, .buttonAdd, .buttonDelete, .divLogicalSymbol, .divOperation {
+    display: inline-block;
+	vertical-align: middle;
+}
+
+body, input, table, select,
+.controller, .menuButton {
+	font-family: Arial;
+	font-size: 15px;
+	line-height: 20px;
+}
+
+.itemButton {
+	position: absolute;
+	bottom: -12px;
+}
+
+.buttonAdd.itemButton {
+	left: -12px;
+}
+
+.buttonDelete.itemButton {
+	right: -12px;
+}
+
+/*
+	help
+*/
+
+.set {
+    margin: auto;
+	padding: 8px;
+	width: 80%;
+    background-color: #a0a0a0;
+    background-color: rgba(192,192,192, 0.3);
+}
+
+.set span, #divHelp table {
+	font-weight: bold;
+}
+
+#divHelp table {
+	color: black;
+    text-align: center;
+}
+
+#divHelp h2 {
+	display: inline-block;
+}
+
+#divHelp ul {
+     list-style-type: none;
+}
+
+#divHelp button, #divHelp input {
+	position: relative;
+	left: 0;
+	top: -4px;
+    margin: 0;
+}
+
+#divHelp .buttonClose {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+}
+/*
+	animations
+*/
+
+.task.item
+{
+	-webkit-animation: createTask 1s;
+    animation: createTask 1s;
+}
+
+.proving.item {
+	-webkit-animation: createItem 1s;
+    animation: createItem 1s;
+    top: 24px;
+    left: 16px;
+}
+
+.proving.item.contra {
+    left: 84px;
+}
+
+.deleteTask {
+	transition: width 1s;
+    width: 0;
+}
+
+.deleteItem {
+    -webkit-transition: opacity 1s;
+    -moz-transition: opacity 1s;
+    -o-transition: opacity 1s;
+    transition: opacity 1s;
+    opacity: 0;
+}
+
+@-webkit-keyframes createTask {
+    from {width: 0;}
+    to {width: 192px;}
+}
+
+@keyframes createTask {
+    from {width: 0;}
+    to {width: 192px;}
+}
+
+@-webkit-keyframes deleteTask {
+    from {width: 192px;}
+    to {width: 0;}
+}
+
+@keyframes deleteTask {
+    from {width: 192px;}
+    to {width: 0;}
+}
+
+@-webkit-keyframes createItem {
+    from {opacity: 0; filter: alpha(opacity=0)}
+    to {opacity: 1; filter: alpha(opacity=100)}
+}
+
+@keyframes createItem {
+    from {opacity: 0; filter: alpha(opacity=0)}
+    to {opacity: 1; filter: alpha(opacity=100)}
+}
+
+#divNoJs {
+	display: none;
+}
+
+#svgItem {
+    width: 100%;
+    height: 100%;
+}
+
+body.en .cs {
+    display: none;
+}
+
+body.cs .en {
+    display: none;
+}
+
+body.cs .en option::-ms-expand{
+    display: none;
+}

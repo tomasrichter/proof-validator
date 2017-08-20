@@ -1,0 +1,30 @@
+body {
+	height: 100%;
+	background-color: #FFFFFF;
+}
+
+body *{
+	display: none;
+}
+
+#divNoJs {
+	display: block;
+	font-size: 28px;
+	line-height: 32px;
+	padding: 16px;
+	position: absolute;
+	border: 2px solid #AAAAAA;
+	background-color: #EEEEEE;
+	left: 32%;
+	right: 32%;
+	top: 32%;
+	bottom: 32%;
+}
+
+
+
+
+
+
+
+
