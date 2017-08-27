@@ -6,6 +6,20 @@ function Proof() {
     this.items = [];
     this.movingItem = null;
     this.selectedPair = [null, null];
+    this.backupItems = [];
+    this.setClearableReturnable(false, false);
+}
+
+Proof.prototype.setClearableReturnable = function (clearable, returnable) {
+    this.isClearable = clearable;
+    this.isReturnable = returnable;
+    if (!this.isClearable && !this.isReturnable) {
+        document.getElementById("buttonClear").style.visibility = "hidden";
+        return;
+    }
+    document.getElementById("buttonClear").style.visibility = "visible";
+    document.getElementById("spanClearCs").innerHTML = this.isClearable ? "Vymazat plochu" : "Vrátit důkaz zpět";
+    document.getElementById("spanClearEn").innerHTML = this.isClearable ? "Clear workspace" : "Take proof back";
 }
 
 /**
@@ -23,22 +37,35 @@ Proof.prototype.setAllDeduced = function(state) {
  * Delete all item in proving space.
  * @returns {} 
  */
-Proof.prototype.clearSpace = function() {
-    var tmpArray = [];
+Proof.prototype.clearSpace = function () {
     var i;
-    for (i = 0; i < this.items.length; i++) {
-        tmpArray[i] = this.items[i];
+    if (this.isClearable) {
+        this.backupItems = [];
+        for (i = 0; i < this.items.length; i++) {
+            this.backupItems[i] = this.items[i];
+        }
+        for (i = 0; i < this.backupItems.length; i++) {
+            this.deleteProvingItem(this.backupItems[i], true);
+        }
+        this.setClearableReturnable(false, true);
     }
-    for (i = 0; i < tmpArray.length; i++) {
-        this.deleteProvingItem(tmpArray[i]);
+    //step back
+    else if (this.isReturnable) {
+        this.setClearableReturnable(true, false);
+        for (i = 0; i < this.backupItems.length; i++) {
+            var item = this.backupItems[i];
+            document.getElementById("divSpace").appendChild(item.item.divItem);
+            this.items.push(item);
+        }
     }
     drawConnections();
+    checkProof();
 }
 
-Proof.prototype.userAddProvingItem = function(provingItem) {
-    this.addProvingItem(provingItem);
-    var shift = (this.items.length - 1) / 16;
-    provingItem.translate(shift, shift);
+Proof.prototype.userAddProvingItem = function(provingItem, originX, originY) {
+    this.addProvingItem(provingItem, 0, 0);
+    provingItem.item.divItem.style.left = originX + 16;
+    provingItem.item.divItem.style.top = originY + 16;
 }
 
 /**
@@ -49,6 +76,7 @@ Proof.prototype.userAddProvingItem = function(provingItem) {
  * @returns {} 
  */
 Proof.prototype.addProvingItem = function (provingItem, translateX, translateY) {
+    this.setClearableReturnable(true, false);
     provingItem.translate(translateX, translateY);
     provingItem.checkBorders();
     this.listenEvents(provingItem);
@@ -61,11 +89,12 @@ Proof.prototype.addProvingItem = function (provingItem, translateX, translateY) 
  * @param {} provingItem    item to be deleted 
  * @returns {} 
  */
-Proof.prototype.deleteProvingItem = function (provingItem) {
-    provingItem.deleteItem();
+Proof.prototype.deleteProvingItem = function (provingItem, clearingSpace) {
+    provingItem.deleteItem(clearingSpace);
+    this.setClearableReturnable(this.items.length > 1, false);
     this.items.splice(this.items.indexOf(provingItem), 1);
     if (!provingItem.item.isEditorClosed()) {
-        this.item.closeEditor();
+        provingItem.item.closeEditor();
     }
     var pairIndex = this.selectedPair.indexOf(provingItem);
     if (pairIndex >= 0) {
@@ -116,7 +145,7 @@ Proof.prototype.listenEvents = function (provingItem) {
 
     if (provingItem.item.hasDuplicateButton()) {
         provingItem.buttonDuplicate.onmousedown = function () {
-            thisItem.userAddProvingItem(thisItem.createCopy(provingItem));
+            thisItem.userAddProvingItem(thisItem.createCopy(provingItem), provingItem.item.divItem.offsetLeft, provingItem.item.divItem.offsetTop);
         };
     }
 

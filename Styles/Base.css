@@ -395,8 +395,6 @@ body, input, table, select,
 }
 
 .proving.item {
-	-webkit-animation: createItem 1s;
-    animation: createItem 1s;
     top: 24px;
     left: 16px;
 }
@@ -408,14 +406,6 @@ body, input, table, select,
 .deleteTask {
 	transition: width 1s;
     width: 0;
-}
-
-.deleteItem {
-    -webkit-transition: opacity 1s;
-    -moz-transition: opacity 1s;
-    -o-transition: opacity 1s;
-    transition: opacity 1s;
-    opacity: 0;
 }
 
 @-webkit-keyframes createTask {
@@ -436,16 +426,6 @@ body, input, table, select,
 @keyframes deleteTask {
     from {width: 192px;}
     to {width: 0;}
-}
-
-@-webkit-keyframes createItem {
-    from {opacity: 0; filter: alpha(opacity=0)}
-    to {opacity: 1; filter: alpha(opacity=100)}
-}
-
-@keyframes createItem {
-    from {opacity: 0; filter: alpha(opacity=0)}
-    to {opacity: 1; filter: alpha(opacity=100)}
 }
 
 #divNoJs {

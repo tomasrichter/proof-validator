@@ -6,6 +6,22 @@ function Task() {
     this.left = new SideOfTask(true);
     this.right = new SideOfTask(false);
     this.normalDirection = true;
+    this.viewDirection();
+}
+
+/**
+ * View implication symbol in correct direction
+ * @returns {} 
+ */
+Task.prototype.viewDirection = function() {
+    var implicationElement = document.getElementById("divImplication");
+    if (implicationElement) {
+        if (this.normalDirection) {
+            implicationElement.innerHTML = "&#8658";
+        } else {
+            implicationElement.innerHTML = "&#8656";
+        }
+    }
 }
 
 /**
@@ -39,14 +55,7 @@ Task.prototype.getConclusion = function () {
  */
 Task.prototype.change = function () {
     this.normalDirection = !this.normalDirection;
-    var implicationElement = document.getElementById("divImplication");
-    if (implicationElement) {
-        if (this.normalDirection) {
-            implicationElement.innerHTML = "&#8658";
-        } else {
-            implicationElement.innerHTML = "&#8656";
-        }
-    }
+    this.viewDirection();
     this.left.negate();
     this.right.negate();
 	checkProof();

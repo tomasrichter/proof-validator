@@ -82,21 +82,20 @@ ProvingItem.prototype.translate = function (translateX, translateY) {
  * Delete item from proving space and perform animation
  * @returns {} 
  */
-ProvingItem.prototype.deleteItem = function() { 
-	var i;
-	this.item.divItem.className += " deleteItem";
-	var thisItem = this;
-	setTimeout(function () {
-	    var spaceElement = document.getElementById("divSpace");
-	    if (spaceElement) {
-	        spaceElement.removeChild(thisItem.item.divItem);
-	    }
-	},1000);
-    for (i = 0; i < this.premises.length;i++) {
-        this.premises[i].conclusions.splice(this.premises[i].conclusions.indexOf(this),1);
-    }
-    for (i = 0; i < this.conclusions.length;i++) {
-        this.conclusions[i].premises.splice(this.conclusions[i].premises.indexOf(this),1);            
+ProvingItem.prototype.deleteItem = function(clearingSpace) {
+    var i;
+    var thisItem = this;
+    var spaceElement = document.getElementById("divSpace");
+	if (spaceElement) {
+	    spaceElement.removeChild(thisItem.item.divItem);
+	}
+    if (!clearingSpace) {
+        for (i = 0; i < this.premises.length; i++) {
+            this.premises[i].conclusions.splice(this.premises[i].conclusions.indexOf(this), 1);
+        }
+        for (i = 0; i < this.conclusions.length; i++) {
+            this.conclusions[i].premises.splice(this.conclusions[i].premises.indexOf(this), 1);
+        }
     }
 };
 
