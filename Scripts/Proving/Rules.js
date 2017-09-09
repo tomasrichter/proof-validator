@@ -47,21 +47,23 @@ var examples = [
     { ENGLISH: "example of cycle in proof", CZECH: "ukázka cyklu v důkazu" }
 ];
 
-var EnumConcreteLanguage = {EMPTY : 0, EPSILON: 1, ALPHABET: 2, ALL : 3, ANBN: 4, COAB: 5, AMBN: 6, AIBJCK: 7, ANBNCN: 8, PRESS: 9, HALT: 10, COHALT: 11};
+var EnumConcreteLanguage = {EMPTY : 0, EPSILON: 1, ALPHABET: 2, ALL : 3, ANBN: 4, COAB: 5, AMBN: 6, AIBJCK: 7, ANBNCN: 8, WW:9, COWW: 10, PRESS: 11, HALT: 12, COHALT: 13 };
 
 var concreteLanguages = [
-    { VIEW: "∅", CLASS: EnumClass.FIN, CONTAINS_EPSILON: false, CONTAINS_ALPHABET: false },
+    { VIEW: "∅", CLASS: EnumClass.FIN, CONTAINS_EPSILON: false, CONTAINS_ALPHABET: false, COMPLEMENT: EnumConcreteLanguage.ALL },
     { VIEW: "{ε}", CLASS: EnumClass.FIN, CONTAINS_EPSILON: true, CONTAINS_ALPHABET: false },
     { VIEW: "∑", CLASS: EnumClass.FIN, CONTAINS_EPSILON: false, CONTAINS_ALPHABET: true },
-    { VIEW: "∑*", CLASS: EnumClass.REG, CONTAINS_EPSILON: true, CONTAINS_ALPHABET: true },
-    { VIEW: "{aⁿbⁿ | n≥0}", CLASS: EnumClass.DCFL, CONTAINS_EPSILON: true, CONTAINS_ALPHABET: false },
-    { VIEW: "co-{aⁿbⁿ | n≥0}", CLASS: EnumClass.DCFL, CONTAINS_EPSILON: false, CONTAINS_ALPHABET: true },
+    { VIEW: "∑*", CLASS: EnumClass.REG, CONTAINS_EPSILON: true, CONTAINS_ALPHABET: true, COMPLEMENT: EnumConcreteLanguage.EMPTY },
+    { VIEW: "{aⁿbⁿ | n≥0}", CLASS: EnumClass.DCFL, CONTAINS_EPSILON: true, CONTAINS_ALPHABET: false, COMPLEMENT: EnumConcreteLanguage.COAB },
+    { VIEW: "co-{aⁿbⁿ | n≥0}", CLASS: EnumClass.DCFL, CONTAINS_EPSILON: false, CONTAINS_ALPHABET: true, COMPLEMENT: EnumConcreteLanguage.ANBN },
     { VIEW: "{aᵐbⁿ | m≠n}", CLASS: EnumClass.DCFL, CONTAINS_EPSILON: false, CONTAINS_ALPHABET: true },
     { VIEW: "{aⁱbʲcᵏ | i≠j ∨ j≠k}", CLASS: EnumClass.CFL, CONTAINS_EPSILON: false, CONTAINS_ALPHABET: true },
     { VIEW: "{aⁿbⁿcⁿ | n≥0}", CLASS: EnumClass.CSL, CONTAINS_EPSILON: true, CONTAINS_ALPHABET: false },
-    { VIEW: "Pressburg. arit.", CLASS: EnumClass.REC, CONTAINS_EPSILON: null, CONTAINS_ALPHABET: null },
-    { VIEW: "HALT", CLASS: EnumClass.RE, CONTAINS_EPSILON: null, CONTAINS_ALPHABET: null },
-    { VIEW: "co-HALT", CLASS: EnumClass.ALL, CONTAINS_EPSILON: null, CONTAINS_ALPHABET: null }
+    { VIEW: "{ww | w ∈ ∑*}", CLASS: EnumClass.CSL, COMPLEMENT: EnumConcreteLanguage.COWW },
+    { VIEW: "co-{ww | w ∈ ∑*}", CLASS: EnumClass.CFL, COMPLEMENT: EnumConcreteLanguage.WW },
+    { VIEW: "Pressburg. arit.", CLASS: EnumClass.REC },
+    { VIEW: "HALT", CLASS: EnumClass.RE, COMPLEMENT: EnumConcreteLanguage.COHALT },
+    { VIEW: "co-HALT", CLASS: EnumClass.ALL, COMPLEMENT: EnumConcreteLanguage.HALT }
 ];
 						
 var languageRules = [	
@@ -76,61 +78,169 @@ var languageRules = [
     //INT with REG
     { OPERATION: EnumOperation.INT, SECOND: EnumClass.REG }
 ];
-	
-/**
- * Expand rules about containing epsilon and symbols from alphabet to simple rules.
- * @param operationId       type of operation
- * @param first             first operand     
- * @param second            second operand
- * @param result            result of rule 
- * @param containsEpsilon   if current rule applies to languages containing epsilon
- * @param containsAlphabet  if current rule applies to languages containing all symbols from alphabet 
- * @returns array of expanded rules 
- */
-function expandRule(operationId, first, second, result, containsEpsilon, containsAlphabet) {
-	var arrayOfRules = [];
-	for (var i = 0; i< concreteLanguages.length; i++) {
-	    if ((containsEpsilon === null || containsEpsilon === concreteLanguages[i].CONTAINS_EPSILON) &&
-	        (containsAlphabet === null || containsAlphabet === concreteLanguages[i].CONTAINS_ALPHABET)) {
-	        var realResult = (result !== null) ? result : ((second === null) ? first : second);
-	        var rule = {
-	            OPERATION: operationId,
-	            FIRST: (first === null) ? i : first,
-	            SECOND: (!isUnary(operationId) && second === null) ? i : second,
-	            RESULT: realResult
-	        }
-            if (rule.SECOND === null) {
-                delete rule.SECOND;
+
+var expandableRules = [
+    //(containsAlphabet)* = ∑*
+    {
+        OPERATION: EnumOperation.ITER,
+        FIRST: { CONTAINS_ALPHABET: true },
+        RESULT: { CONCRETE: EnumConcreteLanguage.ALL }
+    },
+    //(containsAlphabet && containsEpsilon)+ = ∑*
+    {
+        OPERATION: EnumOperation.PITER,
+        FIRST: { CONTAINS_ALPHABET: true, CONTAINS_EPSILON: true },
+        RESULT: { CONCRETE: EnumConcreteLanguage.ALL }
+    },
+    //{ε} UNI (containsEpsilon) = (containsEpsilon)
+    {
+        OPERATION: EnumOperation.UNI,
+        FIRST: { CONCRETE: EnumConcreteLanguage.EPSILON },
+        SECOND : {CONTAINS_EPSILON : true},
+        RESULT: { SIDE: 1}
+    },
+    //∑ UNI (containsAlphabet) = (containsAlphabet)
+    {
+        OPERATION: EnumOperation.UNI,
+        FIRST: { CONCRETE: EnumConcreteLanguage.ALPHABET },
+        SECOND: { CONTAINS_ALPHABET: true },
+        RESULT: { SIDE: 1 }
+    },
+    //{ε} INT (!containsEpsilon) = {}
+    {
+        OPERATION: EnumOperation.INT,
+        FIRST: { CONCRETE: EnumConcreteLanguage.EPSILON },
+        SECOND : {CONTAINS_EPSILON : false},
+        RESULT: { CONCRETE: EnumConcreteLanguage.EMPTY}
+    },
+    //{ε} INT (containsEpsilon) = {ε}
+    {
+        OPERATION: EnumOperation.INT,
+        FIRST: { CONCRETE: EnumConcreteLanguage.EPSILON },
+        SECOND: { CONTAINS_EPSILON: true },
+        RESULT: { CONCRETE: EnumConcreteLanguage.EPSILON }
+    },
+    //∑ INT (containsAlphabet) = ∑
+    {
+        OPERATION: EnumOperation.INT,
+        FIRST: { CONCRETE: EnumConcreteLanguage.ALPHABET },
+        SECOND: { CONTAINS_ALPHABET: true },
+        RESULT: { CONCRETE: EnumConcreteLanguage.ALPHABET }
+    },
+    //{ε} \ (containsEpsilon) = {}
+    {
+        OPERATION: EnumOperation.EXC,
+        FIRST: { CONCRETE: EnumConcreteLanguage.EPSILON},
+        SECOND: { CONTAINS_EPSILON: true },
+        RESULT: { CONCRETE: EnumConcreteLanguage.EMPTY }
+    },
+    //{ε} \ (!containsEpsilon) = {ε}
+    {
+        OPERATION: EnumOperation.EXC,
+        FIRST: { CONCRETE: EnumConcreteLanguage.EPSILON },
+        SECOND: { CONTAINS_EPSILON: false },
+        RESULT: { CONCRETE: EnumConcreteLanguage.EPSILON }
+    },
+    //∑* . (containsEpsilon) = ∑*
+    {
+        OPERATION: EnumOperation.CON,
+        FIRST: { CONCRETE: EnumConcreteLanguage.ALL },
+        SECOND: { CONTAINS_EPSILON: true },
+        RESULT: { CONCRETE: EnumConcreteLanguage.ALL }
+    },
+    //(containsEpsilon) . ∑* = ∑*
+    {
+        OPERATION: EnumOperation.CON,
+        FIRST: { CONTAINS_EPSILON: true },
+        SECOND: { CONCRETE: EnumConcreteLanguage.ALL },
+        RESULT: { CONCRETE: EnumConcreteLanguage.ALL }
+    },
+    //∑ \ (containsAlphabet) = {}
+    {
+        OPERATION: EnumOperation.EXC,
+        FIRST: { CONCRETE: EnumConcreteLanguage.ALPHABET },
+        SECOND: { CONTAINS_ALPHABET: true },
+        RESULT: { CONCRETE: EnumConcreteLanguage.EMPTY }
+    },
+    //A UNI co-A = ∑*
+    {
+        OPERATION: EnumOperation.UNI,
+        RESULT: { CONCRETE: EnumConcreteLanguage.ALL },
+        COMPLEMENTS: true
+    },
+    //A INT co-A = {}	
+    {
+        OPERATION: EnumOperation.INT,
+        RESULT: { CONCRETE: EnumConcreteLanguage.EMPTY },
+        COMPLEMENTS: true
+    },
+    //A \ co-A = A
+    {
+        OPERATION: EnumOperation.EXC,
+        RESULT: { SIDE: 0 },
+        COMPLEMENTS: true
+    },
+    //∑* \ A = co-A
+    {
+        OPERATION: EnumOperation.EXC,
+        FIRST: { CONCRETE: EnumConcreteLanguage.ALL },
+        RESULT: { SIDE: 1, COMPLEMENT: true}
+    }
+];
+
+
+function expandRule(ruleInfo) {
+    var arrayOfRules = [];
+	for (var i = 0; i < concreteLanguages.length; i++) {
+	    if (ruleInfo.FIRST !== undefined &&
+	        ((ruleInfo.FIRST.CONTAINS_EPSILON !== undefined &&
+	                ruleInfo.FIRST.CONTAINS_EPSILON !== concreteLanguages[i].CONTAINS_EPSILON) ||
+	            (ruleInfo.FIRST.CONTAINS_ALPHABET !== undefined &&
+	                ruleInfo.FIRST.CONTAINS_ALPHABET !== concreteLanguages[i].CONTAINS_ALPHABET) ||
+	            (ruleInfo.FIRST.CONCRETE !== undefined &&
+	                ruleInfo.FIRST.CONCRETE !== i))) {
+	        continue;
+	    }
+	    if (isUnary(ruleInfo.OPERATION)) {
+	        arrayOfRules.push({
+	            OPERATION: ruleInfo.OPERATION,
+	            FIRST: i,
+	            SECOND: undefined,
+	            RESULT: (ruleInfo.RESULT.CONCRETE !== undefined) ? ruleInfo.RESULT.CONCRETE : i
+	        });
+	    }
+	    else if (isBinary(ruleInfo.OPERATION)) {
+            for (var j = 0; j < concreteLanguages.length; j++) {
+                if (ruleInfo.SECOND !== undefined &&
+                ((ruleInfo.SECOND.CONTAINS_EPSILON !== undefined &&
+                        ruleInfo.SECOND.CONTAINS_EPSILON !== concreteLanguages[j].CONTAINS_EPSILON) ||
+                    (ruleInfo.SECOND.CONTAINS_ALPHABET !== undefined &&
+                        ruleInfo.SECOND.CONTAINS_ALPHABET !== concreteLanguages[j].CONTAINS_ALPHABET) ||
+                    (ruleInfo.SECOND.CONCRETE !== undefined && ruleInfo.SECOND.CONCRETE !== j)) ||
+                    (ruleInfo.COMPLEMENTS !== undefined && ruleInfo.COMPLEMENTS !== (concreteLanguages[i].COMPLEMENT === j))) {
+                    continue;
+                }
+                var rule = {
+                    OPERATION: ruleInfo.OPERATION,
+                    FIRST: i,
+                    SECOND: j,
+                    RESULT: (ruleInfo.RESULT.CONCRETE !== undefined)
+                        ? ruleInfo.RESULT.CONCRETE
+                        : (ruleInfo.RESULT.SIDE === 0
+                            ? (ruleInfo.RESULT.COMPLEMENT ? concreteLanguages[i].COMPLEMENT : i)
+                            : (ruleInfo.RESULT.COMPLEMENT ? concreteLanguages[j].COMPLEMENT : j))
+                };
+
+                if (rule.RESULT !== undefined) {
+                    arrayOfRules.push(rule);
+                }
             }
-	        arrayOfRules.push(rule);
-		}
+        }
 	}
 	return arrayOfRules;
 }
 
-var expandedRules =
-    //(containsAlphabet)* = ∑*
-	expandRule(EnumOperation.ITER, null, null, EnumConcreteLanguage.ALL, null, true).concat(
-	//(containsAlphabet && containsEpsilon)+ = ∑*
-	expandRule(EnumOperation.PITER, null, null, EnumConcreteLanguage.ALL, true, true)).concat(
-	//{ε} UNI (containsEpsilon) = (containsEpsilon)
-	expandRule(EnumOperation.UNI, EnumConcreteLanguage.EPSILON, null, null, true, null)).concat(
-	//∑ UNI (containsAlphabet) = (containsAlphabet)
-	expandRule(EnumOperation.UNI, EnumConcreteLanguage.ALPHABET, null, null, null, true)).concat(
-	//{ε} INT (!containsEpsilon) = {}
-	expandRule(EnumOperation.INT, EnumConcreteLanguage.EPSILON, null, EnumConcreteLanguage.EMPTY, false, null)).concat(
-	//{ε} INT (containsEpsilon) = {ε}
-	expandRule(EnumOperation.INT, EnumConcreteLanguage.EPSILON, null, EnumConcreteLanguage.EPSILON, true, null)).concat(
-	//∑ INT (containsAlphabet) = ∑
-	expandRule(EnumOperation.INT, EnumConcreteLanguage.ALPHABET, null, EnumConcreteLanguage.ALPHABET, null, true)).concat(
-	//{ε} \ (containsEpsilon) = {}
-	expandRule(EnumOperation.EXC, EnumConcreteLanguage.EPSILON, null, EnumConcreteLanguage.EMPTY, true, null)).concat(
-	//{ε} \ (!containsEpsilon) = {ε}
-	expandRule(EnumOperation.EXC, EnumConcreteLanguage.EPSILON, null, EnumConcreteLanguage.EPSILON, false, null)).concat(
-	//∑ \ (containsAlphabet) = {}
-	expandRule(EnumOperation.EXC, EnumConcreteLanguage.ALPHABET, null, EnumConcreteLanguage.EMPTY, true, null));	
-
-var concreteRules = [	
+var basicConcreteRules = [	
     //A UNI A = A
     { OPERATION: EnumOperation.UNI },
 	//A INT A = A
@@ -161,42 +271,20 @@ var concreteRules = [
 	{ OPERATION: EnumOperation.UNI, FIRST: EnumConcreteLanguage.ALL, RESULT: EnumConcreteLanguage.ALL },
 	//∑* INT other = other
 	{ OPERATION: EnumOperation.INT, FIRST: EnumConcreteLanguage.ALL },
-	//∑* \ other = co-other 
-	//co-{} = ∑*
-	{ OPERATION: EnumOperation.CO, FIRST: EnumConcreteLanguage.EMPTY, RESULT: EnumConcreteLanguage.ALL },
-	//co-∑* = {}
-	{ OPERATION: EnumOperation.CO, FIRST: EnumConcreteLanguage.ALL, RESULT: EnumConcreteLanguage.EMPTY },
 	//other \ ∑* = {}
 	{ OPERATION: EnumOperation.EXC, SECOND: EnumConcreteLanguage.ALL, RESULT: EnumConcreteLanguage.EMPTY },
-	//co-anbn
-	{ OPERATION: EnumOperation.CO, FIRST: EnumConcreteLanguage.ANBN, RESULT: EnumConcreteLanguage.COAB },
-	{ OPERATION: EnumOperation.EXC, FIRST: EnumConcreteLanguage.ALL, SECOND: EnumConcreteLanguage.ANBN, RESULT: EnumConcreteLanguage.COAB },
-	//co-(co-anbn)
-	{ OPERATION: EnumOperation.CO, FIRST: EnumConcreteLanguage.COAB, RESULT: EnumConcreteLanguage.ANBN },
-	{ OPERATION: EnumOperation.EXC, FIRST: EnumConcreteLanguage.ALL, SECOND: EnumConcreteLanguage.COAB, RESULT: EnumConcreteLanguage.ANBN },
-	//co-HALT
-	{ OPERATION: EnumOperation.CO, FIRST: EnumConcreteLanguage.HALT, RESULT: EnumConcreteLanguage.COHALT },
-	{ OPERATION: EnumOperation.EXC, FIRST: EnumConcreteLanguage.ALL, SECOND: EnumConcreteLanguage.HALT, RESULT: EnumConcreteLanguage.COHALT },
-	//co-(co-HALT)
-	{ OPERATION: EnumOperation.CO, FIRST: EnumConcreteLanguage.COHALT, RESULT: EnumConcreteLanguage.HALT },
-	{ OPERATION: EnumOperation.EXC, FIRST: EnumConcreteLanguage.ALL, SECOND: EnumConcreteLanguage.COHALT, RESULT: EnumConcreteLanguage.HALT },
-	//∑* . other = ∑* (except {}... covered by previous rule)
-	{ OPERATION: EnumOperation.CON, FIRST: EnumConcreteLanguage.ALL, RESULT: EnumConcreteLanguage.ALL },
-	{ OPERATION: EnumOperation.CON, SECOND: EnumConcreteLanguage.ALL, RESULT: EnumConcreteLanguage.ALL },
-	//(∑*)R = ∑*
-	{ OPERATION: EnumOperation.REV, FIRST: EnumConcreteLanguage.ALL, RESULT: EnumConcreteLanguage.ALL },					
-    //ANBN, COAB, AMBN
-	{ OPERATION: EnumOperation.UNI, FIRST: EnumConcreteLanguage.ANBN, SECOND: EnumConcreteLanguage.COAB, RESULT: EnumConcreteLanguage.ALL },
-	{ OPERATION: EnumOperation.INT, FIRST: EnumConcreteLanguage.ANBN, SECOND: EnumConcreteLanguage.COAB, RESULT: EnumConcreteLanguage.EMPTY },
-	{ OPERATION: EnumOperation.EXC, FIRST: EnumConcreteLanguage.ANBN, SECOND: EnumConcreteLanguage.COAB, RESULT: EnumConcreteLanguage.ANBN },	
-	{ OPERATION: EnumOperation.EXC, FIRST: EnumConcreteLanguage.COAB, SECOND: EnumConcreteLanguage.ANBN, RESULT: EnumConcreteLanguage.COAB },
+    //(∑*)R = ∑*
+	{ OPERATION: EnumOperation.REV, FIRST: EnumConcreteLanguage.ALL, RESULT: EnumConcreteLanguage.ALL },
     //ANBNCN, AIBJCK
 	{ OPERATION: EnumOperation.INT, FIRST: EnumConcreteLanguage.ANBNCN, SECOND: EnumConcreteLanguage.AIBJCK, RESULT: EnumConcreteLanguage.EMPTY },
 	{ OPERATION: EnumOperation.EXC, FIRST: EnumConcreteLanguage.ANBNCN, SECOND: EnumConcreteLanguage.AIBJCK, RESULT: EnumConcreteLanguage.ANBNCN },
 	{ OPERATION: EnumOperation.EXC, FIRST: EnumConcreteLanguage.AIBJCK, SECOND: EnumConcreteLanguage.ANBNCN, RESULT: EnumConcreteLanguage.AIBJCK }
 ];
-		
-concreteRules = concreteRules.concat(expandedRules);
+
+concreteRules = [].concat(basicConcreteRules);
+for (var i = 0; i < expandableRules.length; i++) {
+    concreteRules = concreteRules.concat(expandRule(expandableRules[i]));
+}
 
 var expansion = new LanguageName(EnumOperation.EXP, null, null);
 var setEqualityRules = [

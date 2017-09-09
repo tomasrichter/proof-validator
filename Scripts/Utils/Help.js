@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Creates dynamic parts of help.
  * @returns {} 
  */
@@ -159,21 +159,68 @@ function createSetEqualityRules() {
  */
 function createConcreteRules() {
     var table = document.getElementById("tableConcreteRules");
-    for (var i = 0; i < concreteRules.length; i++) {
-        var row = document.createElement("tr");
-        var operation = document.createElement("td");
-        var result = document.createElement("td");
-        operation.className = "unknown";
-        result.className = "unknown";
-        var name = new LanguageName(
-            concreteRules[i].OPERATION,
-            new LanguageName(EnumOperation.ATOMIC, (concreteRules[i].FIRST === undefined) ? EnumName.NONAME : concreteLanguages[concreteRules[i].FIRST].VIEW, null),
-            new LanguageName(EnumOperation.ATOMIC, (concreteRules[i].SECOND === undefined) ? EnumName.NONAME : concreteLanguages[concreteRules[i].SECOND].VIEW, null));
-        operation.innerHTML = name.printFriendlyName();
-        result.innerHTML = (concreteRules[i].RESULT === undefined) ? EnumName.NONAME : concreteLanguages[concreteRules[i].RESULT].VIEW;
-        row.appendChild(operation);
-        row.appendChild(result);
-        table.appendChild(row);
+    var rules;
+    for (var count = 0; count < 2; count++) {
+        rules = count === 0 ? basicConcreteRules : expandableRules;
+        for (var i = 0; i < rules.length; i++) {
+            var row = document.createElement("tr");
+            var operation = document.createElement("td");
+            var result = document.createElement("td");
+            operation.className = "unknown";
+            result.className = "unknown";
+
+            if (count === 0) {
+                operation.innerHTML = new LanguageName(
+                    rules[i].OPERATION,
+                    new LanguageName(EnumOperation.ATOMIC,
+                        (rules[i].FIRST === undefined)
+                        ? EnumName.NONAME
+                        : concreteLanguages[rules[i].FIRST].VIEW,
+                        null),
+                    new LanguageName(EnumOperation.ATOMIC,
+                        (rules[i].SECOND === undefined)
+                        ? EnumName.NONAME
+                        : concreteLanguages[rules[i].SECOND].VIEW,
+                        null)).printFriendlyName();
+                result.innerHTML = (rules[i].RESULT === undefined)
+                    ? EnumName.NONAME
+                    : concreteLanguages[rules[i].RESULT].VIEW;
+            } else {
+                var first;
+                var second;
+                var note = "";
+                if (rules[i].COMPLEMENTS !== undefined && rules[i].COMPLEMENTS) {
+                    first = EnumName.NONAME;
+                    second = "(" + operationsFriendly[EnumOperation.CO] + first + ")";
+                } else {
+                    first = (rules[i].FIRST === undefined || rules[i].FIRST.CONCRETE === undefined)
+                        ? EnumName.NONAME
+                        : concreteLanguages[rules[i].FIRST.CONCRETE].VIEW;
+                    second = (rules[i].SECOND === undefined || rules[i].SECOND.CONCRETE === undefined)
+                        ? EnumName.NONAME
+                        : concreteLanguages[rules[i].SECOND.CONCRETE].VIEW;
+
+                    var current = undefined;
+                    if (first === EnumName.NONAME && (rules[i].FIRST !== undefined)) {
+                        current = rules[i].FIRST;
+                    }
+                    else if (second === EnumName.NONAME && (rules[i].SECOND !== undefined)) {
+                        current = rules[i].SECOND;
+                    }
+                    if (current !== undefined) {
+                        note = (current.CONTAINS_EPSILON !== undefined ? concreteLanguages[EnumConcreteLanguage.EPSILON].VIEW + (current.CONTAINS_EPSILON ? "⊆" : "⊈") + EnumName.NONAME + ((current.CONTAINS_ALPHABET !== undefined) ? ", " : "") : "");
+                        note += (current.CONTAINS_ALPHABET !== undefined ? concreteLanguages[EnumConcreteLanguage.ALPHABET].VIEW + (current.CONTAINS_ALPHABET ? "⊆" : "⊈") + EnumName.NONAME : "");
+                    }
+                }
+                operation.innerHTML = new LanguageName(rules[i].OPERATION, new LanguageName(EnumOperation.ATOMIC,first, null), new LanguageName(EnumOperation.ATOMIC,second, null)).printFriendlyName() + (note === "" ? "" :(" (" + note + ")"));
+                
+                result.innerHTML = rules[i].RESULT.CONCRETE !== undefined ? concreteLanguages[rules[i].RESULT.CONCRETE].VIEW : ((rules[i].RESULT.COMPLEMENT !== undefined && rules[i].RESULT.COMPLEMENT ? operationsFriendly[EnumOperation.CO] : "") + EnumName.NONAME);
+            }
+
+            row.appendChild(operation);
+            row.appendChild(result);
+            table.appendChild(row);
+        }
     }
 }
 
